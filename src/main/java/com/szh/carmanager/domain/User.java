@@ -9,8 +9,6 @@ package com.szh.carmanager.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import lombok.Data;
 
@@ -18,22 +16,14 @@ import lombok.Data;
  *
  * @author  szh
  * QQ:873689
- * @date 2018-7-27 9:25:05
+ * @date 2018-10-8 14:18:08
  */
-@Entity(name = "carmanager_shijianduiyingbiao")
+@Entity(name = "carmanager_user")
 @Data
-public class Yunshushichang {
+public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    String username;
     @Column
-    private Long id;
-    
-    @Column
-    private String shifadi;
-    @Column
-    private String daodadi;
-    @Column
-    private long shichang;
-    
+    String password;
 }

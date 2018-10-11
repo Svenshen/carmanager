@@ -13,6 +13,7 @@ import com.szh.carmanager.domain.weixin.Message;
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import me.chanjar.weixin.cp.api.WxCpService;
 import me.chanjar.weixin.cp.api.impl.WxCpServiceImpl;
 import me.chanjar.weixin.cp.bean.WxCpXmlMessage;
 import me.chanjar.weixin.cp.bean.WxCpXmlOutMessage;
@@ -54,13 +55,12 @@ public class MessageController {
     @GetMapping("/recive")
     public String validate( Message message){
             WxCpConfigStorage  wxCpConfigStorage = mywxcp.getMyconfig();
-            WxCpServiceImpl wxCpService = mywxcp.getWxCpService();
+            WxCpService wxCpService = mywxcp.getWxCpService();
             String msgSignature = message.getMsg_signature();
             String nonce = message.getNonce();
             String timestamp = message.getTimestamp();
             String echostr = message.getEchostr();
 
-            
             //response.setStatus(HttpServletResponse.SC_OK);
             if (StringUtils.isNotBlank(echostr)) {
                 if (!wxCpService.checkSignature(msgSignature, timestamp, nonce, echostr)) {
@@ -91,7 +91,7 @@ public class MessageController {
     @PostMapping("/recive")
     public String recive(Message message,HttpServletRequest request) throws IOException{
             WxCpConfigStorage  wxCpConfigStorage = mywxcp.getMyconfig();
-            WxCpServiceImpl wxCpService = mywxcp.getWxCpService();
+            WxCpService wxCpService = mywxcp.getWxCpService();
             //wxCpService.setWxCpConfigStorage(wxCpConfigStorage);
             WxCpMessageRouter wxCpMessageRouter = mywxcp.getMyWxCpMessageRouter();
             String msgSignature = message.getMsg_signature();
@@ -107,6 +107,7 @@ public class MessageController {
                 System.out.println(inMessage);
                 //WxCpMessage.TEXT().agentId(inMessage.getAgentId()).content("sssss").build();
                 WxCpXmlOutMessage outMessage = wxCpMessageRouter.route(inMessage);
+                
                //outMessage.
                 //System.out.println(outMessage.getToUserName());
                 if (outMessage != null) {

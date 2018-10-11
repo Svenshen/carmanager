@@ -27,4 +27,10 @@ public interface YunshuxinxiDao extends JpaRepository<Yunshuxinxi,Long>{
     public List<Yunshuxinxi> findByChepaiOrderByCreatetimeDesc(String chepai);
     
     public List<Yunshuxinxi> findByChepaiOrderByCreatetime(String chepai);
+    
+    @Query(value = "select s.*  from (select *, row_number() over (partition by chepai order by createtime desc) as group_idx from carmanager_yunshuxinxi ) s where s.group_idx = 1 and s.is_del = 0",nativeQuery = true)
+    public List<Yunshuxinxi> findByXinxiDingshi();
+    
+    @Query(value = "select s.daodadi,s.shifadi,s.zhuangtai,count(*)  from (select *, row_number() over (partition by chepai order by createtime desc) as group_idx from carmanager_yunshuxinxi ) s where s.group_idx = 1 and s.is_del = 0 group by s.daodadi,s.shifadi,s.zhuangtai",nativeQuery = true)
+    public List<Object[]> findByXinxihuizong();
 }

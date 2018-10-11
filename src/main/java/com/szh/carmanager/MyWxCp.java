@@ -9,6 +9,7 @@ package com.szh.carmanager;
 
 
 import com.szh.carmanager.controller.MyMesageRouter;
+import java.util.Date;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,6 +23,7 @@ import me.chanjar.weixin.common.session.WxSession;
 import me.chanjar.weixin.common.session.WxSessionManager;
 import me.chanjar.weixin.cp.api.WxCpService;
 import me.chanjar.weixin.cp.api.impl.WxCpServiceImpl;
+import me.chanjar.weixin.cp.api.impl.WxCpServiceOkHttpImpl;
 import me.chanjar.weixin.cp.bean.WxCpXmlMessage;
 import me.chanjar.weixin.cp.bean.WxCpXmlOutMessage;
 import me.chanjar.weixin.cp.bean.WxCpXmlOutTextMessage;
@@ -30,6 +32,7 @@ import me.chanjar.weixin.cp.message.WxCpMessageHandler;
 import me.chanjar.weixin.cp.message.WxCpMessageRouter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 
 /**
  *
@@ -48,7 +51,7 @@ public class MyWxCp {
     public static final int Agentid = 1000002;
     public Long ss ;
     private WxCpInMemoryConfigStorage config;
-    WxCpServiceImpl myservice;
+    WxCpService myservice;
     WxCpMessageRouter router;
     
     
@@ -60,7 +63,7 @@ public class MyWxCp {
         config.setToken(sToken);       // 设置微信企业号应用的token
         config.setAesKey(sEncodingAESKey);      // 设置微信企业号应用的EncodingAESKey
         ss  = System.currentTimeMillis();
-        myservice = new WxCpServiceImpl();
+        myservice = new WxCpServiceOkHttpImpl();
         myservice.setWxCpConfigStorage(config);
         
         
@@ -93,7 +96,7 @@ public class MyWxCp {
         return config;
     }
     
-    public WxCpServiceImpl getWxCpService(){
+    public WxCpService getWxCpService(){
         return myservice;
     }
     
@@ -114,14 +117,20 @@ public class MyWxCp {
     private void initcar(WxCpXmlMessage wxMessage,WxSessionManager sessionManager){
          wxMessage.setContent(guolv(wxMessage.getContent()));
          WxSession standardSession   = sessionManager.getSession(wxMessage.getFromUserName(),false);
-         
+         Date shijian ;
+         if(standardSession == null) {
+             shijian = new Date();
+          }else{
+             shijian = (Date)standardSession.getAttribute("time");
+         }
+         long shijiancha = (new Date().getTime()-shijian.getTime())/1000/60;
          log.info(wxMessage.getContent());
-         if(null == standardSession || "主菜单".equals(wxMessage.getContent()) ){
-                
+         if(standardSession == null || "主菜单".equals(wxMessage.getContent())  || shijiancha > 15){
                 WxSession wxSession = sessionManager.getSession(wxMessage.getFromUserName());
                 MyMesageRouter myMesageRouter = new MyMesageRouter();
                 //wxSession = sessionManager.getSession(wxMessage.getFromUserName());
                 wxSession.setAttribute("MyMesageRouter", myMesageRouter);
+                wxSession.setAttribute("user", wxMessage.getFromUserName());
             }else{
                 WxSession wxSession = sessionManager.getSession(wxMessage.getFromUserName());
                 MyMesageRouter c = (MyMesageRouter) wxSession.getAttribute("MyMesageRouter");
@@ -136,6 +145,8 @@ public class MyWxCp {
                 }
                 
          }
+         WxSession wxSession = sessionManager.getSession(wxMessage.getFromUserName());
+         wxSession.setAttribute("time", new Date());
          
          
     }

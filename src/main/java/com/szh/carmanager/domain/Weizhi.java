@@ -15,7 +15,7 @@ import lombok.*;
  * @date 2018-7-21 18:03:43
  */
 @Data
-@Entity
+@Entity(name = "carmanager_weizhi")
 public class Weizhi {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

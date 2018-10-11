@@ -11,6 +11,8 @@ package com.szh.carmanager.controller;
 import com.szh.carmanager.MyWxCp;
 import com.szh.carmanager.domain.Cheliang;
 import lombok.extern.log4j.Log4j;
+import me.chanjar.weixin.common.error.WxErrorException;
+import me.chanjar.weixin.cp.bean.WxCpMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,7 +31,14 @@ public class HelloWorld2 {
     MyWxCp mmy;
     
     @RequestMapping("/hello21")
-    public String Hello(){
+    public String Hello() throws WxErrorException{
+        WxCpMessage message = WxCpMessage
+            .TEXT()
+            .agentId(mmy.getMyconfig().getAgentId()) // 企业号应用ID
+            .toUser("szh")
+            .content("sfsfdsdf")
+            .build();
+        mmy.getWxCpService().messageSend(message);
         return "" ;
     }
 }

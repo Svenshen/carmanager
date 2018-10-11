@@ -10,6 +10,7 @@ package com.szh.carmanager.service;
 import com.szh.carmanager.domain.Yunshuxinxi;
 import com.szh.carmanager.dao.YunshuxinxiDao;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,6 @@ public class YunshuxinxiService {
 
     @Autowired
     YunshuxinxiDao yunshuxinxiDao;
-    @Autowired
-    CheliangService carService;
     /**
      * 增加运输信息
      * @param yunshuxinxi
@@ -39,7 +38,7 @@ public class YunshuxinxiService {
         boolean flag = true;
         try{
             
-            yunshuxinxi.setCreatetime(System.currentTimeMillis());
+            yunshuxinxi.setCreatetime(new Date());
             yunshuxinxiDao.save(yunshuxinxi);
         }catch(Exception e){
             log.error(e.getMessage(),e);
@@ -55,4 +54,21 @@ public class YunshuxinxiService {
     public List<Yunshuxinxi> findYunshuxinxi(String chepai){
         return yunshuxinxiDao.findByChepaiOrderByCreatetimeDesc(chepai);
     }
+    
+    
+    public List<Yunshuxinxi> findByXinxiDingshi(){
+        return yunshuxinxiDao.findByXinxiDingshi();
+    }
+    
+    public List<Object[]> findByxinxihuizong(){
+        return yunshuxinxiDao.findByXinxihuizong();
+    }
+    
+    public void delBychepai(String chepai){
+        for(Yunshuxinxi x : findYunshuxinxi(chepai)){
+            x.setIs_del(true);
+            yunshuxinxiDao.save(x);
+        }
+    }
+    
 }

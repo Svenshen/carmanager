@@ -20,14 +20,15 @@ import org.springframework.stereotype.Component;
  */
 @Data
 
-@Entity
+@Entity(name = "carmanager_cheliang")
 public class Cheliang {
     @Id
     @Column
     private String chepai;
     @Column(nullable = false)
     private String dianhua;
-    
+    @Column
+    String username;
     
     
 }

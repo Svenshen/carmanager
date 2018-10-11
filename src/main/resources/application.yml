@@ -8,10 +8,10 @@ server:
 spring:
     # jdbc_config   datasource
     datasource:
-        url: jdbc:mysql://localhost:3306/carmanager?useSSL=true
-        username: root
-        password: Ems2017
-        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:sqlserver://192.168.10.150:1433;DatabaseName=wangkong
+        username: sa
+        password: Emswjdb2018
+        driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
         # Hikari will use the above plus the following to setup connection pooling
         type: com.zaxxer.hikari.HikariDataSource
         minimum-idle: 5

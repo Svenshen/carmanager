@@ -7,6 +7,7 @@
 
 package com.szh.carmanager.domain;
 
+import java.util.Date;
 import javax.persistence.*;
 import lombok.Data;
 
@@ -16,7 +17,7 @@ import lombok.Data;
  * QQ:873689
  * @date 2018-7-21 17:47:36
  */
-@Entity
+@Entity(name = "carmanager_yunshuxinxi")
 @Data
 public class Yunshuxinxi {
 
@@ -38,6 +39,10 @@ public class Yunshuxinxi {
     @Column
     private String daodadi;
     @Column
-    private Long createtime;
+    private Date createtime;
+    @Column
+    String username;
+    @Column
+    Boolean is_del=false;
     
 }

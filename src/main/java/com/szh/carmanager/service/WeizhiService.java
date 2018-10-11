@@ -68,7 +68,6 @@ public class WeizhiService {
     * @return 
     */
    public Weizhi findWeizhi(Long id){
-       
        return weizhiDao.findById(id).get();
    }
 }

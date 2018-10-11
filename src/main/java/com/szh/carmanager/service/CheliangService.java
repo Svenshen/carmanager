@@ -15,6 +15,7 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.szh.carmanager.dao.CheliangDao;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -26,8 +27,8 @@ import com.szh.carmanager.dao.CheliangDao;
 @Service
 public class CheliangService {
 
-    
-    
+    @Autowired
+    YunshuxinxiService yunshuxinxiService;
     @Autowired
     CheliangDao cheliangDao ;
     
@@ -71,5 +72,11 @@ public class CheliangService {
      */
     public Cheliang findCar(String chepai){
         return cheliangDao.findById(chepai).get();
+    }
+    
+    @Transactional(rollbackFor=Exception.class)
+    public void delCar(String chepai){
+        cheliangDao.deleteById(chepai);
+        yunshuxinxiService.delBychepai(chepai);
     }
 }

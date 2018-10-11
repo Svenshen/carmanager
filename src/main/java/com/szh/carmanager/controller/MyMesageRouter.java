@@ -24,6 +24,9 @@ import org.springframework.stereotype.Controller;
 import com.szh.carmanager.dao.CheliangDao;
 import com.szh.carmanager.service.WeizhiService;
 import com.szh.carmanager.service.YunshuxinxiService;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import lombok.extern.log4j.Log4j;
 
 /**
@@ -55,8 +58,8 @@ public class MyMesageRouter {
         
     Cheliang car = new Cheliang();
     Yunshuxinxi yunshuxinxi = new Yunshuxinxi();
-    Weizhi weizhi = new Weizhi();
-    
+    //Weizhi weizhi = new Weizhi();
+    SimpleDateFormat sdf=new SimpleDateFormat("yyyy年MM月dd日HH时mm分ss秒");
     /**
      * 初始化
      * @param wxSession
@@ -91,7 +94,7 @@ public class MyMesageRouter {
                             break;
                         case 2:
                             car.setDianhua(msg);
-                            
+                            car.setUsername(wxSession.getAttribute("user").toString());
                             if(carService.saveCar(car)){
                                  sb.append("车辆新增成功");
                             }else{
@@ -118,6 +121,7 @@ public class MyMesageRouter {
                             break;
                         case 2:
                             car.setDianhua(msg);
+                            car.setUsername(wxSession.getAttribute("user").toString());
                             if(carService.saveCar(car)){
                                 sb.append("修改成功");
                             }else{
@@ -131,12 +135,12 @@ public class MyMesageRouter {
                                 sb.append("没有车辆信息");
                                 init(wxSession);
                             }else{
-                                sb.append("车辆信息\r\n");
-                                sb.append("-------------------\r\n");
+                                sb.append("车辆信息\n");
+                                sb.append("-------------------\n");
                                 carlist.forEach((c) -> {
-                                    sb.append("车牌：").append(c.getChepai()).append(",").append("司机电话：").append(c.getDianhua()).append("\r\n");
+                                    sb.append("车牌：").append(c.getChepai()).append(",").append("司机电话：").append(c.getDianhua()).append("\n");
                                 });
-                                sb.append("-------------------\r\n");                                
+                                sb.append("-------------------\n");                                
                                 sb.append("请输入要修改的车辆车牌");
                             }
                             step++;
@@ -145,26 +149,51 @@ public class MyMesageRouter {
                     break;
                 case 3:
                     yunshuxinxi.setZhuangtai("车辆发车");
+                    yunshuxinxi.setUsername(wxSession.getAttribute("user").toString());
                     switch(step){
                         case 1:
-                            if(!carService.isCarexits(msg)){
+                             if(!carService.isCarexits(msg)){
                                 sb.append("车辆不存在，请重新输入车牌");
                             }else{
                                 car = carService.findCar(msg);
                                 yunshuxinxi.setChepai(car.getChepai());
                                 yunshuxinxi.setDianhua(car.getDianhua());
-                                sb.append("目的地信息\r\n");
-                                sb.append("-------------------\r\n");
+                                sb.append("始发地地信息\n");
+                                sb.append("-------------------\n");
                                 List<Weizhi> weizhi = weizhiService.findAllweizhi();
                                 weizhi.forEach((w) ->{
-                                    sb.append("").append(w.getId()).append(".").append(w.getWeizhi()).append("\r\n");
+                                    sb.append("").append(w.getId()).append(".").append(w.getWeizhi()).append("\n");
                                 });
-                                sb.append("-------------------\r\n");
+                                sb.append("-------------------\n");
+                                sb.append("请输入你要选择的始发地序号");
+                                step++;
+                            }
+                            break;
+                        
+                        case 2:
+                            Long id2 = -1L;
+                            try{
+                                id2 = Long.valueOf(msg);
+                            }catch(Exception e){
+                                log.error(e.getMessage(), e);
+                            }
+                            if(!weizhiService.isWeizhiexits(id2) || id2 == -1L){
+                                sb.append("位置不存在，请重新输入");
+                            }else{
+                                //car = carService.findCar(msg);
+                                yunshuxinxi.setShifadi(weizhiService.findWeizhi(id2).getWeizhi());
+                                sb.append("目的地信息\n");
+                                sb.append("-------------------\n");
+                                List<Weizhi> weizhi = weizhiService.findAllweizhi();
+                                weizhi.forEach((w) ->{
+                                    sb.append("").append(w.getId()).append(".").append(w.getWeizhi()).append("\n");
+                                });
+                                sb.append("-------------------\n");
                                 sb.append("请输入你要选择的目的地序号");
                                 step++;
                             }
                             break;
-                        case 2:
+                        case 3:
                             
                             Long id = -1L;
                             try{
@@ -174,21 +203,26 @@ public class MyMesageRouter {
                             }
                             if(id != -1L){
                                 if(weizhiService.isWeizhiexits(id)){
-                                    weizhi = weizhiService.findWeizhi(id);
-                                    yunshuxinxi.setDaodadi(weizhi.getWeizhi());
-                                    List<Yunshuxinxi> yunshuxinxilist = yunshuxinxiService.findYunshuxinxi(yunshuxinxi.getChepai());
-                                    if(yunshuxinxilist.isEmpty()){
-                                        yunshuxinxiService.addYunshuxinxi(yunshuxinxi);
-                                        sb.append("车辆发车成功");
-                                    }else{
-                                        String zhuangtai = yunshuxinxilist.get(0).getZhuangtai();
-                                        if("车辆发车".equals(zhuangtai)){
-                                            sb.append("车辆已经发车，无法重复发车");
-                                        }else{
-                                            yunshuxinxiService.addYunshuxinxi(yunshuxinxi);   
-                                            sb.append("车辆发车成功");
-                                        }
-                                    }
+                                   // weizhi = weizhiService.findWeizhi(id);
+                                    yunshuxinxi.setDaodadi(weizhiService.findWeizhi(id).getWeizhi());
+                                    //List<Yunshuxinxi> yunshuxinxilist = yunshuxinxiService.findYunshuxinxi(yunshuxinxi.getChepai());
+                                    yunshuxinxi.setCreatetime(new Date());
+                                    yunshuxinxi.setUsername(wxSession.getAttribute("user").toString());
+                                    yunshuxinxiService.addYunshuxinxi(yunshuxinxi);
+                                    sb.append("车辆发车成功");
+                                    
+//                                    if(yunshuxinxilist.isEmpty()){
+//                                        yunshuxinxiService.addYunshuxinxi(yunshuxinxi);
+//                                        sb.append("车辆发车成功");
+//                                    }else{
+//                                        String zhuangtai = yunshuxinxilist.get(0).getZhuangtai();
+//                                        if("车辆发车".equals(zhuangtai)){
+//                                            sb.append("车辆已经发车，无法重复发车");
+//                                        }else{
+//                                            yunshuxinxiService.addYunshuxinxi(yunshuxinxi);   
+//                                            sb.append("车辆发车成功");
+//                                        }
+//                                    }
                                     init(wxSession);
                                 }else{
                                     sb.append("输入错误，请重新输入");
@@ -205,6 +239,7 @@ public class MyMesageRouter {
                     break;
                 case 4:
                     yunshuxinxi.setZhuangtai("车辆到达");
+                    yunshuxinxi.setUsername(wxSession.getAttribute("user").toString());
                     switch(step){
                         case 1:
                             if(!carService.isCarexits(msg)){
@@ -213,37 +248,126 @@ public class MyMesageRouter {
                                 car = carService.findCar(msg);
                                 yunshuxinxi.setChepai(car.getChepai());
                                 yunshuxinxi.setDianhua(car.getDianhua());
+                                sb.append("目的地信息\n");
+                                sb.append("-------------------\n");
+                                List<Weizhi> weizhi = weizhiService.findAllweizhi();
+                                weizhi.forEach((w) ->{
+                                    sb.append("").append(w.getId()).append(".").append(w.getWeizhi()).append("\n");
+                                });
+                                sb.append("-------------------\n");
+                                sb.append("请输入你的位置序号");
+                                step++;
                             }
-                            break;                        
+                            break;        
+                        case 2:
+                            Long id = -1L;
+                            try{
+                                id = Long.valueOf(msg);
+                            }catch(Exception e){
+                                log.error(e.getMessage(), e);
+                            }
+                            if(id == -1L || !weizhiService.isWeizhiexits(id)){
+                                sb.append("输入错误，请重新输入");
+                            }else{
+                                yunshuxinxi.setDaodadi(weizhiService.findWeizhi(id).getWeizhi());
+                                yunshuxinxi.setCreatetime(new Date());
+                                yunshuxinxiService.addYunshuxinxi(yunshuxinxi);
+                                sb.append("车辆到达成功");
+                                init(wxSession);
+                            }
+                            break;
                         default:
                             sb.append("请输入到达的车辆车牌");
                             step++;
                             break;
                     }
-                    init(wxSession);
+                    
                     break;
-                case 5:
-                    init(wxSession);
-                    break;
-                case 6:
-                    init(wxSession);
-                    break;
-                case 7:
+//                case 5:
+//                    init(wxSession);
+//                    break;
+//                case 6:
+//                    init(wxSession);
+//                    break;
+                case 6303:
+                    yunshuxinxi.setZhuangtai("结束");
+                    yunshuxinxi.setUsername(wxSession.getAttribute("user").toString());
+                    switch(step){
+                        case 1:
+                            if(!carService.isCarexits(msg)){
+                                sb.append("车辆不存在，请重新输入车牌");
+                            }else{
+                                car = carService.findCar(msg);
+                                yunshuxinxi.setChepai(car.getChepai());
+                                yunshuxinxi.setDianhua(car.getDianhua());
+                                yunshuxinxi.setCreatetime(new Date());
+                                yunshuxinxiService.addYunshuxinxi(yunshuxinxi);
+                                sb.append("车辆行程结束成功");
+                                init(wxSession);
+                            }
+                            break;
+                        default:
+                            sb.append("请输入结束行程的车辆车牌");
+                            step++;
+                            break;
+                    }
                     init(wxSession);
                     break;
                 case 8:
+                    List<Yunshuxinxi> list = yunshuxinxiService.findByXinxiDingshi();
+                    List<Object[]> list2 = yunshuxinxiService.findByxinxihuizong();
+                        
+                        for(Yunshuxinxi y : list){
+                            switch(y.getZhuangtai()){
+                                case "车辆发车":
+                                    sb.append(y.getChepai()).append(",电话").append(y.getDianhua()).append(",").append(sdf.format(y.getCreatetime())).append("从").append(y.getShifadi()).append("到").append(y.getDaodadi()).append("\n");
+                                    break;
+                                case "车辆到达":
+                                    sb.append(y.getChepai()).append(",电话").append(y.getDianhua()).append(",").append(sdf.format(y.getCreatetime())).append("到达").append(y.getDaodadi());
+                                    break;
+                                case "结束":
+                                    //sb.append(y.getChepai()).append(",电话").append(y.getDianhua()).append(",").append(sdf.format(y.getCreatetime())).append("到达").append(y.getDaodadi());
+                                    break;
+                            }
+                        }
+                        for(Object[] y:list2){
+                            String zhuangtai = String.valueOf(y[2]);
+                            switch(zhuangtai){
+                                case "车辆发车":
+                                    break;
+                                case "车辆到达":
+                                    break;
+                                case "结束":
+                                    break;
+                            }
+                        }
+                    
                     init(wxSession);
                     break;
+                case 8952:
+                    switch(step){
+                        case 1:
+                            carService.delCar(msg);
+                            sb.append("删除成功");
+                            init(wxSession);
+                            break;
+                        default:
+                            sb.append("请输入要删除的车辆车牌");
+                            step++;
+                            break;
+                    }
+                    
+                    break;
                 default:
-                    sb.append("主菜单\r\n");
-                    sb.append("-------------------\r\n");
-                    sb.append("1.车辆新增\r\n");
-                    sb.append("2.车辆信息修改\r\n");
-                    sb.append("3.车辆发车\r\n");
-                    sb.append("4.车辆到达\r\n");
-                    sb.append("5.车辆卸车\r\n");
-                    sb.append("6.车辆装车\r\n");
-                    sb.append("7.车辆行程结束\r\n");
+                    sb.append("主菜单\n");
+                    sb.append("-------------------\n");
+                    sb.append("1.车辆新增\n");
+                    sb.append("2.车辆信息修改\n");
+                    sb.append("3.车辆发车\n");
+                    sb.append("4.车辆到达\n");
+//                    sb.append("5.车辆卸车\n");
+//                    sb.append("6.车辆装车\n");
+//                    sb.append("7.车辆行程结束\n");
                     sb.append("8.车辆状态报表");
                     break;
             }

@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.szh.carmanager.dao.CheliangDao;
+import com.szh.carmanager.scheduledtask.Chelianglunxun;
 import com.szh.carmanager.service.YunshuxinxiService;
 import java.util.List;
 
@@ -35,42 +36,25 @@ import java.util.List;
 @Log4j
 @RestController
 public class HelloWorld {
-   
-    @Autowired
-    WeizhiService weizhiService;
-    @Autowired
-    YunshuxinxiService yunshuxinxiService;
+//   
+//    @Autowired
+//    WeizhiService weizhiService;
+//    @Autowired
+//    YunshuxinxiService yunshuxinxiService;
     
     @RequestMapping("/hello")
-    public String Hello(){
+    public void Hello(){
+        Chelianglunxun c = new Chelianglunxun();
+        c.jianchaxinxi();
        //car.getTime();
-        Weizhi weizhi1 = new Weizhi();
-        weizhi1.setWeizhi("处理中心");
-        Weizhi weizhi2 = new Weizhi();
-        weizhi2.setWeizhi("电商");
-        weizhiService.addWeizhi(weizhi1);
-        weizhiService.addWeizhi(weizhi2);
-        return "" ;
+//        Weizhi weizhi1 = new Weizhi();
+//        weizhi1.setWeizhi("处理中心");
+//        Weizhi weizhi2 = new Weizhi();
+//        weizhi2.setWeizhi("电商");
+//        weizhiService.addWeizhi(weizhi1);
+//        weizhiService.addWeizhi(weizhi2);
+//        return "" ;
+//        return yunshuxinxiService.findByXinxiDingshi();
     }
-    
-    
-    @RequestMapping("/hello2")
-    public String Hello2(){
-       //car.getTime();
-       String s = "";
-       List<Yunshuxinxi> list = yunshuxinxiService.findYunshuxinxi("050");
-       for(Yunshuxinxi y :list){
-           s+=y.toString();
-       }
-       return s;
-    }
-    
-    @RequestMapping("/hello34")
-    public Boolean Hello3(){
-       //car.getTime();
-       String s = "";
-       List<Yunshuxinxi> list = yunshuxinxiService.findYunshuxinxi("050x");
-      
-       return list.isEmpty();
-    }
+   
 }
